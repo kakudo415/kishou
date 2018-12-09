@@ -1,0 +1,2 @@
+# kishou
+PubSubHubbubを利用して気象庁(JMA)から入手したXMLをJSONとして提供するAPI

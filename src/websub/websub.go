@@ -26,11 +26,15 @@ type Feeds []struct {
 // Subscriber (subscribe / unsubscribe)
 func Subscriber(c *gin.Context) {
 	if c.Query("hub.mode") != "subscribe" && c.Query("hub.mode") != "unsubscribe" {
-		c.AbortWithStatusJSON(404, gin.H{"error": "hub.mode error"})
+		fmt.Fprintln(os.Stderr, "hub.mode error")
+		c.AbortWithStatusJSON(404, gin.H{"error": "illegal hub.mode"})
+		return
 	}
 
 	if c.Query("hub.verify_token") != os.Getenv("JMA_VERIFY_TOKEN") {
-		c.AbortWithStatusJSON(404, gin.H{"error": "hub.verify_token error"})
+		fmt.Fprintln(os.Stderr, "verify_token error")
+		c.AbortWithStatusJSON(404, gin.H{"error": "illegal hub.verify_token"})
+		return
 	}
 
 	c.String(200, c.Query("hub.challenge"))
@@ -42,12 +46,14 @@ func Receiver(c *gin.Context) {
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		c.AbortWithStatusJSON(404, gin.H{"error": "illegal atom feed"})
+		return
 	}
 
 	var feeds Feeds
 	if err := xml.Unmarshal(atom, &feeds); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		c.AbortWithStatusJSON(404, gin.H{"error": "illegal atom feed"})
+		return
 	}
 
 	// Get more information

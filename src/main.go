@@ -1,6 +1,8 @@
 package main
 
 import (
+	"strings"
+
 	"./api"
 	"./page"
 	"./websub"
@@ -18,5 +20,15 @@ func main() {
 	app.GET("/xml/:time", api.XML)
 	app.GET("/json", page.JSON)
 	app.GET("/json/:time", api.JSON)
+	// Redirect Trailing Slash
+	app.GET("/sub/", func(c *gin.Context) {
+		c.Redirect(301, strings.TrimSuffix(c.Request.URL.String(), "/"))
+	})
+	app.GET("/xml/", func(c *gin.Context) {
+		c.Redirect(301, strings.TrimSuffix(c.Request.URL.String(), "/"))
+	})
+	app.GET("/json/", func(c *gin.Context) {
+		c.Redirect(301, strings.TrimSuffix(c.Request.URL.String(), "/"))
+	})
 	app.Run()
 }

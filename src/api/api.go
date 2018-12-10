@@ -1,20 +1,27 @@
 package api
 
 import (
-	"strconv"
-	"time"
+	"../kvs"
 
 	"github.com/gin-gonic/gin"
 )
 
+// XML API (RAW)
+func XML(c *gin.Context) {
+	rep := kvs.GET(c.Param("time") + "xml")
+	if len(rep) == 0 {
+		c.AbortWithStatusJSON(404, gin.H{"error": "no data or illegal time"})
+	}
+	c.Header("Content-Type", "application/xml")
+	c.String(200, rep)
+}
+
 // JSON API
 func JSON(c *gin.Context) {
-	ts, err := strconv.ParseInt(c.Param("ts"), 10, 64)
-	if err != nil {
-		c.AbortWithStatusJSON(404, gin.H{"error": "illegal time"})
+	rep := kvs.GET(c.Param("time") + "json")
+	if len(rep) == 0 {
+		c.AbortWithStatusJSON(404, gin.H{"error": "no data or illegal time"})
 	}
-
-	t := time.Unix(ts, 0)
-
-	println(t.String())
+	c.Header("Content-Type", "application/json")
+	c.String(200, rep)
 }

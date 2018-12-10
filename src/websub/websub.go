@@ -26,13 +26,13 @@ type Feeds []struct {
 // Subscriber (subscribe / unsubscribe)
 func Subscriber(c *gin.Context) {
 	if c.Query("hub.mode") != "subscribe" && c.Query("hub.mode") != "unsubscribe" {
-		fmt.Fprintln(os.Stderr, "hub.mode error")
+		fmt.Fprintln(os.Stderr, "[hub.mode error] "+c.Query("hub.mode"))
 		c.AbortWithStatusJSON(404, gin.H{"error": "illegal hub.mode"})
 		return
 	}
 
 	if c.Query("hub.verify_token") != os.Getenv("JMA_VERIFY_TOKEN") {
-		fmt.Fprintln(os.Stderr, "verify_token error")
+		fmt.Fprintln(os.Stderr, "[verify_token error] "+c.Query("hub.verify_token"))
 		c.AbortWithStatusJSON(404, gin.H{"error": "illegal hub.verify_token"})
 		return
 	}

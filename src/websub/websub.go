@@ -73,7 +73,7 @@ func Receiver(c *gin.Context) {
 			ts := strconv.FormatInt(time.Now().Unix(), 10)
 			kvs.SET(ts+"xml", string(data))
 			kvs.EXPIRE(ts+"xml", 3600)
-			println(ts)
+			fmt.Println("[NEW FEED] KEY = " + "kishou" + ts)
 		}
 	}
 }

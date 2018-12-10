@@ -72,6 +72,7 @@ func Receiver(c *gin.Context) {
 			// SET XML (RAW)
 			ts := strconv.FormatInt(time.Now().Unix(), 10)
 			kvs.SET(ts+"xml", string(data))
+			kvs.EXPIRE(ts+"xml", 3600)
 			println(ts)
 		}
 	}

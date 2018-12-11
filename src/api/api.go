@@ -22,7 +22,7 @@ func JSON(c *gin.Context) {
 
 func serve(c *gin.Context, infos []string) {
 	if len(infos) == 0 {
-		c.AbortWithStatus(404)
+		c.String(404, "NOT FOUND")
 		return
 	}
 	c.Header("Content-Type", "application/json")

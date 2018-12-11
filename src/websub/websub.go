@@ -43,13 +43,13 @@ func init() {
 func Subscriber(c *gin.Context) {
 	if c.Query("hub.mode") != "subscribe" && c.Query("hub.mode") != "unsubscribe" {
 		fmt.Fprintln(os.Stderr, "[hub.mode error] "+c.Query("hub.mode"))
-		c.AbortWithStatus(404)
+		c.String(404, "NOT FOUND")
 		return
 	}
 
 	if c.Query("hub.verify_token") != os.Getenv("JMA_VERIFY_TOKEN") {
 		fmt.Fprintln(os.Stderr, "[verify_token error] "+c.Query("hub.verify_token"))
-		c.AbortWithStatus(404)
+		c.String(404, "NOT FOUND")
 		return
 	}
 
@@ -62,7 +62,7 @@ func Receiver(c *gin.Context) {
 	atom, err := fp.Parse(c.Request.Body)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
-		c.AbortWithStatus(404)
+		c.String(404, "NOT FOUND")
 		return
 	}
 

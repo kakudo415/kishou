@@ -25,6 +25,6 @@ func serve(c *gin.Context, infos []string) {
 		c.JSON(404, gin.H{"error": "NOT FOUND"})
 		return
 	}
-	c.String(200, `{"body":{`+strings.Join(infos, `,`)+`}}`)
 	c.Header("Content-Type", "application/json")
+	c.String(200, `{"body":{`+strings.Join(infos, `,`)+`}}`)
 }

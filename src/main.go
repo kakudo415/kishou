@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/gin-gonic/contrib/gzip"
 	"github.com/gin-gonic/gin"
 
 	"./api"
@@ -12,6 +13,7 @@ import (
 
 func main() {
 	app := gin.New()
+	app.Use(gzip.Gzip(gzip.DefaultCompression))
 
 	// Index page
 	app.StaticFile("/", "doc")

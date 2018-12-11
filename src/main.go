@@ -13,22 +13,18 @@ import (
 func main() {
 	app := gin.New()
 	app.LoadHTMLGlob("doc/*.html")
+	// Router
 	app.GET("/", page.Index)
-	app.GET("/sub", websub.Subscriber)
-	app.POST("/sub", websub.Receiver)
-	app.GET("/xml", page.XML)
-	app.GET("/xml/:time", api.XML)
-	app.GET("/json", page.JSON)
-	app.GET("/json/:time", api.JSON)
+	app.GET("/subscriber", websub.Subscriber)
+	app.POST("/subscriber", websub.Receiver)
+	app.GET("/json", api.JSON)
 	// Redirect Trailing Slash
-	app.GET("/sub/", func(c *gin.Context) {
-		c.Redirect(301, strings.TrimSuffix(c.Request.URL.String(), "/"))
-	})
-	app.GET("/xml/", func(c *gin.Context) {
+	app.GET("/subscriber/", func(c *gin.Context) {
 		c.Redirect(301, strings.TrimSuffix(c.Request.URL.String(), "/"))
 	})
 	app.GET("/json/", func(c *gin.Context) {
 		c.Redirect(301, strings.TrimSuffix(c.Request.URL.String(), "/"))
 	})
+	// Run on $PORT
 	app.Run()
 }

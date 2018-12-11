@@ -6,10 +6,10 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"strconv"
-	"time"
 
 	"../kvs"
+
+	"github.com/google/uuid"
 
 	"github.com/gin-gonic/gin"
 )
@@ -64,16 +64,12 @@ func Receiver(c *gin.Context) {
 				fmt.Fprintln(os.Stderr, err.Error())
 			}
 			defer res.Body.Close()
-			data, err := ioutil.ReadAll(res.Body)
-			if err != nil {
-				fmt.Fprintln(os.Stderr, err.Error())
-			}
 
-			// SET XML (RAW)
-			ts := strconv.FormatInt(time.Now().Unix(), 10)
-			kvs.SET(ts+"xml", string(data))
-			kvs.EXPIRE(ts+"xml", 3600)
-			fmt.Println("[NEW FEED] KEY = " + "kishou" + ts)
+			// Save to KVS
+			id := "KISHOW" + uuid.New().String()
+			kvs.SET(id+"JSON", "")
+			kvs.EXPIRE(id+"JSON", 600)
+			fmt.Println(id + "JSON")
 		}
 	}
 }

@@ -1,2 +1,2 @@
-# kishou
-PubSubHubbubを利用して気象庁(JMA)から入手したXMLをJSONとして提供するAPI
+# kishow
+An API showing an information of the JMA.

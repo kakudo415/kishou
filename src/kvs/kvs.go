@@ -21,17 +21,17 @@ func Connect() redis.Conn {
 
 // SET command
 func SET(key string, value string) {
-	conn.Do("SET", "kishou"+key, value)
+	conn.Do("SET", key, value)
 }
 
 // EXPIRE command
 func EXPIRE(key string, ttl int) {
-	conn.Do("EXPIRE", "kishou"+key, ttl)
+	conn.Do("EXPIRE", key, ttl)
 }
 
 // GET command
 func GET(key string) string {
-	rep, err := redis.String(conn.Do("GET", "kishou"+key))
+	rep, err := redis.String(conn.Do("GET", key))
 	if err != nil {
 		return ""
 	}

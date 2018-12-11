@@ -1,6 +1,7 @@
 package main
 
 import (
+	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -16,6 +17,7 @@ func main() {
 
 	// Index page
 	app.GET("/", page.Index)
+	app.StaticFS("/static/", http.Dir("doc/static"))
 	// Subscriber
 	app.GET("/subscriber", websub.Subscriber)
 	app.POST("/subscriber", websub.Receiver)

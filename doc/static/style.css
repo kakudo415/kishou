@@ -1,0 +1,13 @@
+body {
+  line-height: 1.75;
+}
+main {
+  max-width: 720px;
+  margin: 0 auto;
+}
+a {
+  color: #03C;
+}
+a:hover {
+  text-decoration: underline;
+}

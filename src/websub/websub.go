@@ -80,5 +80,5 @@ func UUID() string {
 
 func save(key string, value string) {
 	kvs.SET(key, value)
-	kvs.EXPIRE(key, 600)
+	kvs.EXPIRE(key, 300)
 }

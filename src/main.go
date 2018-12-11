@@ -22,21 +22,21 @@ func main() {
 	app.GET("/subscriber", websub.Subscriber)
 	app.POST("/subscriber", websub.Receiver)
 	// API
-	app.GET("/raw", api.XML)
-	app.GET("/xml", api.XML)
-	app.GET("/json", api.JSON)
+	app.GET("/5min.raw", api.XML)
+	app.GET("/5min.xml", api.XML)
+	app.GET("/5min.json", api.JSON)
 
 	// Redirect Trailing Slash
 	app.GET("/subscriber/", func(c *gin.Context) {
 		c.Redirect(301, strings.TrimSuffix(c.Request.URL.String(), "/"))
 	})
-	app.GET("/raw/", func(c *gin.Context) {
+	app.GET("/5min.raw/", func(c *gin.Context) {
 		c.Redirect(301, strings.TrimSuffix(c.Request.URL.String(), "/"))
 	})
-	app.GET("/xml/", func(c *gin.Context) {
+	app.GET("/5min.xml/", func(c *gin.Context) {
 		c.Redirect(301, strings.TrimSuffix(c.Request.URL.String(), "/"))
 	})
-	app.GET("/json/", func(c *gin.Context) {
+	app.GET("/5min.json/", func(c *gin.Context) {
 		c.Redirect(301, strings.TrimSuffix(c.Request.URL.String(), "/"))
 	})
 

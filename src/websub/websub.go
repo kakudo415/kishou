@@ -6,12 +6,13 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-
-	"../kvs"
-
-	"github.com/google/uuid"
+	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"github.com/mmcdole/gofeed"
+
+	"../kvs"
 )
 
 // Feeds XML
@@ -42,34 +43,48 @@ func Subscriber(c *gin.Context) {
 
 // Receiver func
 func Receiver(c *gin.Context) {
-	atom, err := ioutil.ReadAll(c.Request.Body)
+	fp := gofeed.NewParser()
+	atom, err := fp.Parse(c.Request.Body)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		c.AbortWithStatusJSON(404, gin.H{"error": "illegal atom feed"})
 		return
 	}
-
-	var feeds Feeds
-	if err := xml.Unmarshal(atom, &feeds); err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
-		c.AbortWithStatusJSON(404, gin.H{"error": "illegal atom feed"})
-		return
-	}
-
 	// Get more information
-	for _, feed := range feeds {
-		for _, entry := range feed.Entrys {
-			res, err := http.Get(entry.Link.Href)
-			if err != nil {
-				fmt.Fprintln(os.Stderr, err.Error())
-			}
-			defer res.Body.Close()
-
-			// Save to KVS
-			id := "KISHOW" + uuid.New().String()
-			kvs.SET(id+"JSON", "")
-			kvs.EXPIRE(id+"JSON", 600)
-			fmt.Println(id + "JSON")
+	for _, item := range atom.Items {
+		resp, err := http.Get(item.Link)
+		if err != nil {
+			continue
 		}
+		data, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			continue
+		}
+		var info interface{}
+		err = xml.Unmarshal(data, &info)
+		if err != nil {
+			continue
+		}
+		// Save to KVS
+		id := UUID()
+		save("KISHOW-XML:"+id, `"`+id+`":"`+removeFromString(strings.Replace(string(data), `"`, `\"`, -1), "\n")+`"`) // Escape '"' and Remove '\n'
+		save("KISHOW-JSON:"+id, `{"`+id+`":""}`)
 	}
+}
+
+// UUID gen
+func UUID() string {
+	return uuid.New().String()
+}
+
+func save(key string, value string) {
+	kvs.SET(key, value)
+	kvs.EXPIRE(key, 600)
+}
+
+func removeFromString(s string, r ...string) string {
+	for _, o := range r {
+		s = strings.Replace(s, o, "", -1)
+	}
+	return s
 }

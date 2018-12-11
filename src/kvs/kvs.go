@@ -4,10 +4,11 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
-var conn redis.Conn
+// Conn redis
+var Conn redis.Conn
 
 func init() {
-	conn = Connect()
+	Conn = Connect()
 }
 
 // Connect to redis-server
@@ -21,19 +22,41 @@ func Connect() redis.Conn {
 
 // SET command
 func SET(key string, value string) {
-	conn.Do("SET", key, value)
+	Conn.Do("SET", key, value)
 }
 
 // EXPIRE command
 func EXPIRE(key string, ttl int) {
-	conn.Do("EXPIRE", key, ttl)
+	Conn.Do("EXPIRE", key, ttl)
+}
+
+// KEYS command
+func KEYS(pattern string) []string {
+	rep, err := redis.Strings(Conn.Do("KEYS", pattern))
+	if err != nil {
+		return []string{""}
+	}
+	return rep
 }
 
 // GET command
 func GET(key string) string {
-	rep, err := redis.String(conn.Do("GET", key))
+	rep, err := redis.String(Conn.Do("GET", key))
 	if err != nil {
 		return ""
 	}
 	return rep
+}
+
+// GETALL command
+func GETALL(pattern string) (reps []string) {
+	keys := KEYS(pattern)
+	for _, key := range keys {
+		rep, err := redis.String(Conn.Do("GET", key))
+		if err != nil {
+			continue
+		}
+		reps = append(reps, rep)
+	}
+	return reps
 }

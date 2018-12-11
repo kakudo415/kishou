@@ -6,10 +6,5 @@ import (
 
 // Index page
 func Index(c *gin.Context) {
-	c.HTML(200, "index.html", gin.H{})
-}
-
-// JSON page
-func JSON(c *gin.Context) {
-	c.HTML(200, "json.html", gin.H{})
+	c.HTML(200, "index.html", nil)
 }

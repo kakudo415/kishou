@@ -1,8 +1,11 @@
 package websub
 
 import (
+	"bytes"
+	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -17,6 +20,20 @@ import (
 )
 
 var escapeXML *regexp.Regexp
+
+// Tag for Unmarshal
+type Tag struct {
+	Name string `json:"name"`
+	// Attr     []Attr        `json:"attr"`
+	Children []interface{} `json:"children"`
+	Value    string        `json:"value"`
+}
+
+// Attr for Unmarshal
+type Attr struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
 
 func init() {
 	escapeXML = regexp.MustCompile(`(\n|\r|\r\n)`)
@@ -59,8 +76,8 @@ func Receiver(c *gin.Context) {
 		if err != nil {
 			continue
 		}
-		var info interface{}
-		err = xml.Unmarshal(data, &info)
+		var info *Tag
+		err = xml.NewDecoder(bytes.NewReader(data)).Decode(&info)
 		if err != nil {
 			continue
 		}
@@ -69,7 +86,11 @@ func Receiver(c *gin.Context) {
 		id := UUID()
 		escapedXML := strings.Replace(escapeXML.ReplaceAllString(string(data), ``), `"`, `\"`, -1)
 		save("KISHOW-XML:"+id, `"`+id+`":"`+escapedXML+`"`)
-		// save("KISHOW-JSON:"+id, `{"`+id+`":""}`)
+		escapedJSON, err := json.Marshal(info)
+		if err != nil {
+			continue
+		}
+		save("KISHOW-JSON:"+id, `"`+id+`":`+string(escapedJSON))
 	}
 }
 
@@ -81,4 +102,35 @@ func UUID() string {
 func save(key string, value string) {
 	kvs.SET(key, value)
 	kvs.EXPIRE(key, 180)
+}
+
+// UnmarshalXML func
+func (t *Tag) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+	t.Name = start.Name.Local
+	// for _, attr := range start.Attr {
+	// 	t.Attr = append(t.Attr, Attr{attr.Name.Space + attr.Name.Local, attr.Value})
+	// }
+	for {
+		token, err := d.Token()
+		if err != nil {
+			if err == io.EOF {
+				return nil
+			}
+			return err
+		}
+		switch token.(type) {
+		case xml.StartElement:
+			tok := token.(xml.StartElement)
+			var data *Tag
+			if err := d.DecodeElement(&data, &tok); err != nil {
+				return err
+			}
+			t.Children = append(t.Children, data)
+		case xml.CharData:
+			cd := string(token.(xml.CharData).Copy())
+			if cd != "\n" {
+				t.Value = cd
+			}
+		}
+	}
 }

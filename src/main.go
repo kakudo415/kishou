@@ -7,16 +7,14 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"./api"
-	"./page"
 	"./websub"
 )
 
 func main() {
 	app := gin.New()
-	app.LoadHTMLGlob("doc/*.html")
 
 	// Index page
-	app.GET("/", page.Index)
+	app.StaticFile("/", "doc")
 	app.StaticFS("/static/", http.Dir("doc/static"))
 	// Subscriber
 	app.GET("/subscriber", websub.Subscriber)

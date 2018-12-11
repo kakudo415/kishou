@@ -48,6 +48,7 @@ func Receiver(c *gin.Context) {
 		c.AbortWithStatusJSON(404, gin.H{"error": "illegal atom feed"})
 		return
 	}
+
 	// Get more information
 	for _, item := range atom.Items {
 		resp, err := http.Get(item.Link)
@@ -63,9 +64,9 @@ func Receiver(c *gin.Context) {
 		if err != nil {
 			continue
 		}
+
 		// Save to KVS
 		id := UUID()
-
 		escapedXML := strings.Replace(escapeXML.ReplaceAllString(string(data), ``), `"`, ``, -1)
 		save("KISHOW-XML:"+id, `"`+id+`":"`+escapedXML+`"`)
 		// save("KISHOW-JSON:"+id, `{"`+id+`":""}`)

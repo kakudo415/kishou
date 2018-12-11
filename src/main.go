@@ -13,10 +13,12 @@ import (
 func main() {
 	app := gin.New()
 	app.LoadHTMLGlob("doc/*.html")
-	// Router
+	// Index page
 	app.GET("/", page.Index)
+	// Subscriber
 	app.GET("/subscriber", websub.Subscriber)
 	app.POST("/subscriber", websub.Receiver)
+	// API
 	app.GET("/json", api.JSON)
 	// Redirect Trailing Slash
 	app.GET("/subscriber/", func(c *gin.Context) {

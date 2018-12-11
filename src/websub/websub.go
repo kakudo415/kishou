@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"regexp"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -15,13 +16,10 @@ import (
 	"../kvs"
 )
 
-// Feeds XML
-type Feeds []struct {
-	Entrys []struct {
-		Link struct {
-			Href string `xml:"href,attr"`
-		} `xml:"link"`
-	} `xml:"entry"`
+var escapeXML *regexp.Regexp
+
+func init() {
+	escapeXML = regexp.MustCompile(`(\n|\r|\r\n)`)
 }
 
 // Subscriber (subscribe / unsubscribe)
@@ -67,8 +65,10 @@ func Receiver(c *gin.Context) {
 		}
 		// Save to KVS
 		id := UUID()
-		save("KISHOW-XML:"+id, `"`+id+`":"`+removeFromString(strings.Replace(string(data), `"`, `\"`, -1), "\n")+`"`) // Escape '"' and Remove '\n'
-		save("KISHOW-JSON:"+id, `{"`+id+`":""}`)
+
+		escapedXML := strings.Replace(escapeXML.ReplaceAllString(string(data), ``), `"`, ``, -1)
+		save("KISHOW-XML:"+id, `"`+id+`":"`+escapedXML+`"`)
+		// save("KISHOW-JSON:"+id, `{"`+id+`":""}`)
 	}
 }
 
@@ -80,11 +80,4 @@ func UUID() string {
 func save(key string, value string) {
 	kvs.SET(key, value)
 	kvs.EXPIRE(key, 600)
-}
-
-func removeFromString(s string, r ...string) string {
-	for _, o := range r {
-		s = strings.Replace(s, o, "", -1)
-	}
-	return s
 }

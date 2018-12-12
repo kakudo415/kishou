@@ -23,16 +23,9 @@ var escapeNL *regexp.Regexp
 
 // Tag for Unmarshal
 type Tag struct {
-	Name string `json:"name"`
-	// Attr     []Attr        `json:"attr"`
+	Name     string        `json:"name"`
 	Value    string        `json:"value"`
 	Children []interface{} `json:"children"`
-}
-
-// Attr for Unmarshal
-type Attr struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
 }
 
 func init() {
@@ -109,9 +102,6 @@ func save(key string, value string) {
 // UnmarshalXML func
 func (t *Tag) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	t.Name = start.Name.Local
-	// for _, attr := range start.Attr {
-	// 	t.Attr = append(t.Attr, Attr{attr.Name.Space + attr.Name.Local, attr.Value})
-	// }
 	for {
 		token, err := d.Token()
 		if err != nil {

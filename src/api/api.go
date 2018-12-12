@@ -3,7 +3,6 @@ package api
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -17,7 +16,6 @@ func Top(c *gin.Context) {
 	for _, key := range kvs.KEYS("KISHOW-XML:*") {
 		keys = append(keys, strings.TrimPrefix(key, "KISHOW-XML:"))
 	}
-	fmt.Printf("%v\n", keys)
 	b, err := json.MarshalIndent(keys, "", "  ")
 	if err != nil {
 		c.AbortWithStatus(500)

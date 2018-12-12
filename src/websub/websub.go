@@ -68,6 +68,9 @@ func Receiver(c *gin.Context) {
 
 	// Get more information
 	for _, item := range atom.Items {
+		if !strings.HasPrefix(item.Link, `http://xml.kishou.go.jp/`) {
+			continue
+		}
 		resp, err := http.Get(item.Link)
 		if err != nil {
 			continue

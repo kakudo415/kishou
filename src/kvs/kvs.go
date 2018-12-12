@@ -34,7 +34,7 @@ func EXPIRE(key string, ttl int) {
 func KEYS(pattern string) []string {
 	rep, err := redis.Strings(Conn.Do("KEYS", pattern))
 	if err != nil {
-		return []string{""}
+		return []string{}
 	}
 	return rep
 }

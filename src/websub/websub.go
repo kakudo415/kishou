@@ -19,7 +19,7 @@ import (
 	"../kvs"
 )
 
-var escapeXML *regexp.Regexp
+var escapeNL *regexp.Regexp
 
 // Tag for Unmarshal
 type Tag struct {
@@ -36,7 +36,7 @@ type Attr struct {
 }
 
 func init() {
-	escapeXML = regexp.MustCompile(`(\n|\r|\r\n)`)
+	escapeNL = regexp.MustCompile(`(\n|\r|\r\n)`)
 }
 
 // Subscriber (subscribe / unsubscribe)
@@ -84,7 +84,7 @@ func Receiver(c *gin.Context) {
 
 		// Save to KVS
 		id := UUID()
-		escapedXML := strings.Replace(escapeXML.ReplaceAllString(string(data), ``), `"`, `\"`, -1)
+		escapedXML := strings.Replace(escapeNL.ReplaceAllString(string(data), ``), `"`, `\"`, -1)
 		save("KISHOW-XML:"+id, `"`+id+`":"`+escapedXML+`"`)
 		escapedJSON, err := json.Marshal(info)
 		if err != nil {
@@ -129,7 +129,7 @@ func (t *Tag) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 		case xml.CharData:
 			cd := string(token.(xml.CharData).Copy())
 			if cd != "\n" {
-				t.Value = cd
+				t.Value = escapeNL.ReplaceAllString(cd, "")
 			}
 		}
 	}

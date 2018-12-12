@@ -25,8 +25,8 @@ var escapeXML *regexp.Regexp
 type Tag struct {
 	Name string `json:"name"`
 	// Attr     []Attr        `json:"attr"`
-	Children []interface{} `json:"children"`
 	Value    string        `json:"value"`
+	Children []interface{} `json:"children"`
 }
 
 // Attr for Unmarshal

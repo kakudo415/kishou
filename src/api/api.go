@@ -1,6 +1,8 @@
 package api
 
 import (
+	"bytes"
+	"encoding/json"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -25,6 +27,16 @@ func serve(c *gin.Context, infos []string) {
 		c.String(404, "NOT FOUND")
 		return
 	}
-	c.Header("Content-Type", "application/json")
-	c.String(200, `{"body":{`+strings.Join(infos, `,`)+`}}`)
+	c.Header("Content-Type", "application/json; charset=utf-8")
+	data := `{"body":{` + strings.Join(infos, `,`) + `}}`
+	if c.Query("format") == "true" {
+		var buf bytes.Buffer
+		if json.Indent(&buf, []byte(data), "", "  ") != nil {
+			c.String(404, "NOT FOUND")
+			return
+		}
+		c.String(200, buf.String())
+	} else {
+		c.String(200, data)
+	}
 }

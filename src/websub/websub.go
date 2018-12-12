@@ -87,13 +87,12 @@ func Receiver(c *gin.Context) {
 
 		// Save to KVS
 		id := UUID()
-		escapedXML := strings.Replace(escapeNL.ReplaceAllString(string(data), ``), `"`, `\"`, -1)
-		save("KISHOW-XML:"+id, `"`+id+`":"`+escapedXML+`"`)
+		save("KISHOW-XML:"+id, string(data))
 		escapedJSON, err := json.Marshal(info)
 		if err != nil {
 			continue
 		}
-		save("KISHOW-JSON:"+id, `"`+id+`":`+string(escapedJSON))
+		save("KISHOW-JSON:"+id, string(escapedJSON))
 	}
 }
 

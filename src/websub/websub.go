@@ -32,7 +32,7 @@ func Sub(c echo.Context) error {
 		if err := xml.Unmarshal(b.Bytes(), &src); err != nil {
 			return c.String(404, "UNMARSHAL XML ERROR")
 		}
-		return c.JSONPretty(200, src, "  ")
+		return c.JSONPretty(200, &src, "  ")
 	}
 
 	return nil
@@ -43,6 +43,58 @@ type Tag struct {
 	Name     string
 	Value    string
 	Children []*Tag
+}
+
+// MarshalJSON func
+func (t *Tag) MarshalJSON() ([]byte, error) {
+	result, err := innerJSON(t.Name, []*Tag{t})
+	if err != nil {
+		return []byte{}, err
+	}
+	result = `{` + result + `}`
+	return []byte(result), nil
+}
+
+func innerJSON(name string, elms []*Tag) (string, error) {
+	result := `"` + name + `":`
+	if len(elms) >= 2 {
+		result += `[`
+	}
+	for i, elm := range elms {
+		if i >= 1 {
+			result += `,`
+		}
+		if len(elm.Children) == 0 {
+			result += `"` + elm.Value + `"`
+		} else {
+			result += `{`
+			for i, ec := range elm.Children {
+				inner, err := innerJSON(ec.Name, sameKeys(ec.Name, elm.Children))
+				if err != nil {
+					return result, err
+				}
+				if i >= 1 {
+					result += `,`
+				}
+				result += inner
+			}
+			result += `}`
+		}
+	}
+	if len(elms) >= 2 {
+		result += `]`
+	}
+	return result, nil
+}
+
+func sameKeys(n string, t []*Tag) []*Tag {
+	l := []*Tag{}
+	for _, v := range t {
+		if v.Name == n {
+			l = append(l, v)
+		}
+	}
+	return l
 }
 
 // UnmarshalXML func
@@ -71,45 +123,4 @@ func (t *Tag) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 			}
 		}
 	}
-}
-
-// MarshalJSON func
-func (t *Tag) MarshalJSON() ([]byte, error) {
-	var result string
-	dk := dupKeys(t.Children)
-	for _, c := range t.Children {
-		j, e := t.marshalJSON(c.Name, dk[c.Name])
-		if e != nil {
-			return []byte{}, e
-		}
-		result += j
-	}
-	return []byte(`[` + `]`), nil
-}
-
-func (t *Tag) marshalJSON(name string, dup bool) (string, error) {
-	var result = `"` + name + `":`
-	if dup {
-		result += `[`
-		for _, c := range t.Children {
-			if c.Name == name {
-				result += `{`
-			}
-		}
-	} else {
-		result += `{`
-	}
-	return result, nil
-}
-
-func dupKeys(t []*Tag) (m map[string]bool) {
-	var d map[string]bool
-	for _, v := range t {
-		if d[v.Name] {
-			m[v.Name] = true
-		} else {
-			d[v.Name] = true
-		}
-	}
-	return m
 }

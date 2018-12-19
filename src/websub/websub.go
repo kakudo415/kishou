@@ -2,11 +2,16 @@ package websub
 
 import (
 	"bytes"
+	"encoding/json"
 	"encoding/xml"
 	"io"
 	"os"
+	"time"
 
+	"github.com/google/uuid"
 	"github.com/labstack/echo"
+
+	"../kvs"
 )
 
 // Sub - scriber
@@ -29,10 +34,18 @@ func Sub(c echo.Context) error {
 		b := new(bytes.Buffer)
 		b.ReadFrom(c.Request().Body)
 		var src Tag
-		if err := xml.Unmarshal(b.Bytes(), &src); err != nil {
+		err := xml.Unmarshal(b.Bytes(), &src)
+		if err != nil {
 			return c.String(404, "UNMARSHAL XML ERROR")
 		}
-		return c.JSONPretty(200, &src, "  ")
+		d, err := json.MarshalIndent(&src, "", "  ")
+		if err != nil {
+			return c.String(404, "MARSHAL JSON ERROR")
+		}
+		id := "KISHOW:" + uuid.New().String()
+		kvs.SET(id, string(d))
+		kvs.EXPIRE(id, time.Hour)
+		return c.String(200, "THANK YOU")
 	}
 
 	return nil

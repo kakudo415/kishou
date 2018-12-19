@@ -36,8 +36,9 @@ func Sub(c echo.Context) error {
 		fp := gofeed.NewParser()
 		feed, _ := fp.Parse(c.Request().Body)
 		for _, item := range feed.Items {
+			println(item.Link)
 			res, _ := http.Get(item.Link)
-
+			// XML => JSON
 			var src Tag
 			b := bytes.NewBuffer([]byte{})
 			b.ReadFrom(res.Body)

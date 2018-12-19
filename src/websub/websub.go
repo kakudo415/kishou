@@ -5,11 +5,13 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"io"
+	"net/http"
 	"os"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo"
+	"github.com/mmcdole/gofeed"
 
 	"../kvs"
 )
@@ -31,20 +33,26 @@ func Sub(c echo.Context) error {
 
 	// Data receiver
 	if method == "POST" {
-		b := new(bytes.Buffer)
-		b.ReadFrom(c.Request().Body)
-		var src Tag
-		err := xml.Unmarshal(b.Bytes(), &src)
-		if err != nil {
-			return c.String(404, "UNMARSHAL XML ERROR")
+		fp := gofeed.NewParser()
+		feed, _ := fp.Parse(c.Request().Body)
+		for _, item := range feed.Items {
+			res, _ := http.Get(item.Link)
+
+			var src Tag
+			b := bytes.NewBuffer([]byte{})
+			b.ReadFrom(res.Body)
+			err := xml.Unmarshal(b.Bytes(), &src)
+			if err != nil {
+				continue
+			}
+			d, err := json.MarshalIndent(&src, "", "  ")
+			if err != nil {
+				continue
+			}
+			id := "KISHOW:" + uuid.New().String()
+			kvs.SET(id, string(d))
+			kvs.EXPIRE(id, time.Hour)
 		}
-		d, err := json.MarshalIndent(&src, "", "  ")
-		if err != nil {
-			return c.String(404, "MARSHAL JSON ERROR")
-		}
-		id := "KISHOW:" + uuid.New().String()
-		kvs.SET(id, string(d))
-		kvs.EXPIRE(id, time.Hour)
 		return c.String(200, "THANK YOU")
 	}
 

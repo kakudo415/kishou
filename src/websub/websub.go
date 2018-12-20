@@ -11,7 +11,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/labstack/echo"
 	"github.com/mmcdole/gofeed"
 
@@ -53,7 +52,7 @@ func Sub(c echo.Context) error {
 				fmt.Fprintf(os.Stderr, "[ERROR] %s\n", err.Error())
 				continue
 			}
-			id := "KISHOW:" + uuid.New().String()
+			id := "KISHOW:" + strings.TrimPrefix(item.GUID, "urn:uuid:")
 			kvs.SET(id, string(d))
 			kvs.EXPIRE(id, (10 * time.Minute))
 		}

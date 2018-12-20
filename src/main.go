@@ -1,23 +1,17 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo"
 
 	"./api"
 	"./websub"
 )
 
 func main() {
-	app := gin.New()
-
-	// Subscriber
-	app.GET("/subscriber", websub.Subscriber)
-	app.POST("/subscriber", websub.Receiver)
-	// API
+	app := echo.New()
 	app.GET("/", api.Top)
-	app.GET("/xml/:uuid", api.XML)
-	app.GET("/json/:uuid", api.JSON)
-
-	// Run on $PORT
-	app.Run()
+	app.GET("/:uuid", api.JSON)
+	app.GET("/sub", websub.Sub)
+	app.POST("/sub", websub.Sub)
+	app.Start(":10200")
 }

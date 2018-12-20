@@ -4,99 +4,118 @@ import (
 	"bytes"
 	"encoding/json"
 	"encoding/xml"
-	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
-	"regexp"
-	"strings"
+	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/labstack/echo"
 	"github.com/mmcdole/gofeed"
 
 	"../kvs"
 )
 
-var escapeNL *regexp.Regexp
+// Sub - scriber
+func Sub(c echo.Context) error {
+	method := c.Request().Method
 
-// Tag for Unmarshal
+	// Subscribe / Unsubscribe
+	if method == "GET" {
+		if mode := c.QueryParam("hub.mode"); mode != "subscribe" && mode != "unsubscribe" {
+			return c.String(404, "HUB MODE ERROR")
+		}
+		if c.QueryParam("hub.verify_token") != os.Getenv("JMA_VERIFY_TOKEN") {
+			return c.String(404, "VERIFY TOKEN ERROR")
+		}
+		return c.String(200, c.QueryParam("hub.challenge"))
+	}
+
+	// Data receiver
+	if method == "POST" {
+		fp := gofeed.NewParser()
+		feed, _ := fp.Parse(c.Request().Body)
+		for _, item := range feed.Items {
+			res, _ := http.Get(item.Link)
+			// XML => JSON
+			var src Tag
+			b := bytes.NewBuffer([]byte{})
+			b.ReadFrom(res.Body)
+			err := xml.Unmarshal(b.Bytes(), &src)
+			if err != nil {
+				continue
+			}
+			d, err := json.Marshal(&src)
+			if err != nil {
+				continue
+			}
+			id := "KISHOW:" + uuid.New().String()
+			kvs.SET(id, string(d))
+			kvs.EXPIRE(id, (10 * time.Minute))
+		}
+		return c.String(200, "THANK YOU")
+	}
+
+	return nil
+}
+
+// Tag struct for XML JSON
 type Tag struct {
-	Name     string        `json:"name"`
-	Value    string        `json:"value"`
-	Children []interface{} `json:"children"`
+	Name     string
+	Value    string
+	Children []*Tag
 }
 
-func init() {
-	escapeNL = regexp.MustCompile(`(\n|\r|\r\n)`)
-}
-
-// Subscriber (subscribe / unsubscribe)
-func Subscriber(c *gin.Context) {
-	if c.Query("hub.mode") != "subscribe" && c.Query("hub.mode") != "unsubscribe" {
-		fmt.Fprintln(os.Stderr, "[hub.mode error] "+c.Query("hub.mode"))
-		c.String(404, "NOT FOUND")
-		return
-	}
-
-	if c.Query("hub.verify_token") != os.Getenv("JMA_VERIFY_TOKEN") {
-		fmt.Fprintln(os.Stderr, "[verify_token error] "+c.Query("hub.verify_token"))
-		c.String(404, "NOT FOUND")
-		return
-	}
-
-	c.String(200, c.Query("hub.challenge"))
-}
-
-// Receiver func
-func Receiver(c *gin.Context) {
-	fp := gofeed.NewParser()
-	atom, err := fp.Parse(c.Request.Body)
+// MarshalJSON func
+func (t *Tag) MarshalJSON() ([]byte, error) {
+	result, err := innerJSON(t.Name, []*Tag{t})
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		c.String(404, "NOT FOUND")
-		return
+		return []byte{}, err
 	}
-
-	// Get more information
-	for _, item := range atom.Items {
-		if !strings.HasPrefix(item.Link, `http://xml.kishou.go.jp/`) {
-			continue
-		}
-		resp, err := http.Get(item.Link)
-		if err != nil {
-			continue
-		}
-		data, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			continue
-		}
-		var info *Tag
-		err = xml.NewDecoder(bytes.NewReader(data)).Decode(&info)
-		if err != nil {
-			continue
-		}
-
-		// Save to KVS
-		id := UUID()
-		save("KISHOW-XML:"+id, string(data))
-		escapedJSON, err := json.Marshal(info)
-		if err != nil {
-			continue
-		}
-		save("KISHOW-JSON:"+id, string(escapedJSON))
-	}
+	result = `{` + result + `}`
+	return []byte(result), nil
 }
 
-// UUID gen
-func UUID() string {
-	return uuid.New().String()
+func innerJSON(name string, elms []*Tag) (string, error) {
+	result := `"` + name + `":`
+	if len(elms) >= 2 {
+		result += `[`
+	}
+	for i, elm := range elms {
+		if i >= 1 {
+			result += `,`
+		}
+		if len(elm.Children) == 0 {
+			result += `"` + elm.Value + `"`
+		} else {
+			result += `{`
+			for i, ec := range elm.Children {
+				inner, err := innerJSON(ec.Name, sameKeys(ec.Name, elm.Children))
+				if err != nil {
+					return result, err
+				}
+				if i >= 1 {
+					result += `,`
+				}
+				result += inner
+			}
+			result += `}`
+		}
+	}
+	if len(elms) >= 2 {
+		result += `]`
+	}
+	return result, nil
 }
 
-func save(key string, value string) {
-	kvs.SET(key, value)
-	kvs.EXPIRE(key, 600)
+func sameKeys(n string, t []*Tag) []*Tag {
+	l := []*Tag{}
+	for _, v := range t {
+		if v.Name == n {
+			l = append(l, v)
+		}
+	}
+	return l
 }
 
 // UnmarshalXML func
@@ -121,7 +140,7 @@ func (t *Tag) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 		case xml.CharData:
 			cd := string(token.(xml.CharData).Copy())
 			if cd != "\n" {
-				t.Value = escapeNL.ReplaceAllString(cd, "")
+				t.Value = cd
 			}
 		}
 	}

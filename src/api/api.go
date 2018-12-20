@@ -1,52 +1,33 @@
 package api
 
 import (
-	"bytes"
-	"encoding/json"
 	"strings"
 
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo"
 
 	"../kvs"
 )
 
-// Top API (List of now Info)
-func Top(c *gin.Context) {
-	keys := []string{}
-	for _, key := range kvs.KEYS("KISHOW-XML:*") {
-		keys = append(keys, strings.TrimPrefix(key, "KISHOW-XML:"))
-	}
-	b, err := json.MarshalIndent(keys, "", "  ")
-	if err != nil {
-		c.AbortWithStatus(500)
-	}
-	c.Data(200, "application/json; charset=utf-8", b)
+// TopJSON Format
+type TopJSON struct {
+	UUID []string `json:"UUID"`
 }
 
-// XML API
-func XML(c *gin.Context) {
-	data := kvs.GET("KISHOW-XML:" + c.Param("uuid"))
-	if len(data) == 0 {
-		c.AbortWithStatus(404)
-		return
+// Top API (Last 10min UUIDs)
+func Top(c echo.Context) error {
+	ids := kvs.KEYS("KISHOW:*")
+	for i := 0; i < len(ids); i++ {
+		ids[i] = strings.TrimPrefix(ids[i], "KISHOW:")
 	}
-	c.Header("Content-Type", "application/xml; charset=utf-8")
-	c.String(200, data)
+	return c.JSON(200, TopJSON{UUID: ids})
 }
 
 // JSON API
-func JSON(c *gin.Context) {
-	data := kvs.GET("KISHOW-JSON:" + c.Param("uuid"))
-	if len(data) == 0 {
-		c.AbortWithStatus(404)
-		return
+func JSON(c echo.Context) error {
+	d := kvs.GET("KISHOW:" + c.Param("uuid"))
+	if len(d) == 0 {
+		return c.String(200, `{"error":"NOT FOUND"}`)
 	}
-	c.Header("Content-Type", "application/json; charset=utf-8")
-	if c.Query("format") == "true" {
-		var buf bytes.Buffer
-		json.Indent(&buf, []byte(data), "", "  ")
-		c.String(200, buf.String())
-	} else {
-		c.String(200, data)
-	}
+	c.Response().Header().Set(echo.HeaderContentType, echo.MIMEApplicationJSONCharsetUTF8)
+	return c.String(200, d)
 }

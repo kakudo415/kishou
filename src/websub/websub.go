@@ -37,6 +37,10 @@ func Sub(c echo.Context) error {
 		fp := gofeed.NewParser()
 		feed, _ := fp.Parse(c.Request().Body)
 		for _, item := range feed.Items {
+			if !strings.HasPrefix(item.Link, "http://xml.kishou.go.jp/") {
+				fmt.Fprintf(os.Stderr, "[ERROR] 気象庁以外のリンク %s\n", item.Link)
+				continue
+			}
 			res, _ := http.Get(item.Link)
 			// XML => JSON
 			var src Tag

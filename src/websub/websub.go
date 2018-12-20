@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"encoding/xml"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -43,10 +44,12 @@ func Sub(c echo.Context) error {
 			b.ReadFrom(res.Body)
 			err := xml.Unmarshal(b.Bytes(), &src)
 			if err != nil {
+				fmt.Fprintf(os.Stderr, "[ERROR] %s\n", err.Error())
 				continue
 			}
 			d, err := json.Marshal(&src)
 			if err != nil {
+				fmt.Fprintf(os.Stderr, "[ERROR] %s\n", err.Error())
 				continue
 			}
 			id := "KISHOW:" + uuid.New().String()

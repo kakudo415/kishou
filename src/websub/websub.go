@@ -45,13 +45,13 @@ func Sub(c echo.Context) error {
 			if err != nil {
 				continue
 			}
-			d, err := json.MarshalIndent(&src, "", "  ")
+			d, err := json.Marshal(&src)
 			if err != nil {
 				continue
 			}
 			id := "KISHOW:" + uuid.New().String()
 			kvs.SET(id, string(d))
-			kvs.EXPIRE(id, time.Hour)
+			kvs.EXPIRE(id, (10 * time.Minute))
 		}
 		return c.String(200, "THANK YOU")
 	}

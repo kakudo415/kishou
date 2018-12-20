@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -147,9 +148,7 @@ func (t *Tag) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 			t.Children = append(t.Children, data)
 		case xml.CharData:
 			cd := string(token.(xml.CharData).Copy())
-			if cd != "\n" {
-				t.Value = cd
-			}
+			t.Value = strings.Replace(cd, "\n", "", -1)
 		}
 	}
 }

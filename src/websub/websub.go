@@ -89,8 +89,13 @@ func innerJSON(name string, elms []*Tag) (string, error) {
 			result += `"` + elm.Value + `"`
 		} else {
 			result += `{`
+			dupKeys := map[string]bool{}
 			for i, ec := range elm.Children {
+				if dupKeys[ec.Name] {
+					continue
+				}
 				inner, err := innerJSON(ec.Name, sameKeys(ec.Name, elm.Children))
+				dupKeys[ec.Name] = true
 				if err != nil {
 					return result, err
 				}

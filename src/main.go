@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+
 	"github.com/labstack/echo"
 
 	"./api"
@@ -13,5 +15,5 @@ func main() {
 	app.GET("/:uuid", api.JSON)
 	app.GET("/sub", websub.Sub)
 	app.POST("/sub", websub.Sub)
-	app.Start(":10200")
+	app.Start(":" + os.Getenv("PORT"))
 }

@@ -1,8 +1,6 @@
 package api
 
 import (
-	"bytes"
-	"encoding/json"
 	"strings"
 
 	"github.com/labstack/echo"
@@ -29,15 +27,12 @@ func Top(c echo.Context) error {
 
 // JSON API
 func JSON(c echo.Context) error {
-	d := kvs.GET("KISHOW:" + c.Param("uuid"))
-	if len(d) == 0 {
-		return c.String(200, `{"error":"NOT FOUND"}`)
-	}
+	var info string
 	c.Response().Header().Set(echo.HeaderContentType, echo.MIMEApplicationJSONCharsetUTF8)
 	if c.Request().Header.Get("X-JSON-STYLE") == "PRETTY" {
-		p := bytes.NewBuffer([]byte{})
-		json.Indent(p, []byte(d), "", "  ")
-		return c.String(200, p.String())
+		info = kvs.GET("KISHOW-PRETTY:" + c.Param("uuid"))
+	} else {
+		info = kvs.GET("KISHOW:" + c.Param("uuid"))
 	}
-	return c.String(200, d)
+	return c.String(200, info)
 }

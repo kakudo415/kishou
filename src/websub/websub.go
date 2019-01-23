@@ -54,14 +54,28 @@ func Sub(c echo.Context) error {
 				fmt.Fprintf(os.Stderr, "[ERROR] %s\n", err.Error())
 				continue
 			}
-			d, err := json.Marshal(&src)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "[ERROR] %s\n", err.Error())
-				continue
+			// Save to Redis
+			{
+				d, err := json.Marshal(&src)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "[ERROR] %s\n", err.Error())
+					continue
+				}
+				id := "KISHOW:" + strings.TrimPrefix(item.GUID, "urn:uuid:")
+				kvs.SET(id, string(d))
+				kvs.EXPIRE(id, (10 * time.Minute))
 			}
-			id := "KISHOW:" + strings.TrimPrefix(item.GUID, "urn:uuid:")
-			kvs.SET(id, string(d))
-			kvs.EXPIRE(id, (10 * time.Minute))
+			// Save to Redis (Pretty)
+			{
+				d, err := json.MarshalIndent(&src, "", "  ")
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "[ERROR] %s\n", err.Error())
+					continue
+				}
+				id := "KISHOW-PRETTY:" + strings.TrimPrefix(item.GUID, "urn:uuid:")
+				kvs.SET(id, string(d))
+				kvs.EXPIRE(id, (10 * time.Minute))
+			}
 		}
 		return c.String(200, "THANK YOU")
 	}

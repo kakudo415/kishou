@@ -35,7 +35,10 @@ func Sub(c echo.Context) error {
 	// Data receiver
 	if method == "POST" {
 		fp := gofeed.NewParser()
-		feed, _ := fp.Parse(c.Request().Body)
+		feed, err := fp.Parse(c.Request().Body)
+		if err != nil {
+			return nil
+		}
 		for _, item := range feed.Items {
 			if !strings.HasPrefix(item.Link, "http://xml.kishou.go.jp/") {
 				fmt.Fprintf(os.Stderr, "[ERROR] 気象庁以外のリンク %s\n", item.Link)
@@ -62,7 +65,6 @@ func Sub(c echo.Context) error {
 		}
 		return c.String(200, "THANK YOU")
 	}
-
 	return nil
 }
 

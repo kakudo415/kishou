@@ -19,7 +19,7 @@ func Top(c echo.Context) error {
 	for i := 0; i < len(ids); i++ {
 		ids[i] = strings.TrimPrefix(ids[i], "KISHOW:")
 	}
-	if c.Request().Header.Get("X-JSON-STYLE") == "PRETTY" {
+	if c.Param("s") == "p" {
 		return c.JSONPretty(200, TopJSON{UUID: ids}, "  ")
 	}
 	return c.JSON(200, TopJSON{UUID: ids})
@@ -29,7 +29,7 @@ func Top(c echo.Context) error {
 func JSON(c echo.Context) error {
 	var info string
 	c.Response().Header().Set(echo.HeaderContentType, echo.MIMEApplicationJSONCharsetUTF8)
-	if c.Request().Header.Get("X-JSON-STYLE") == "PRETTY" {
+	if c.Param("s") == "p" {
 		info = kvs.GET("KISHOW-PRETTY:" + c.Param("uuid"))
 	} else {
 		info = kvs.GET("KISHOW:" + c.Param("uuid"))

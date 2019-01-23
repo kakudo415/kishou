@@ -15,11 +15,11 @@ type TopJSON struct {
 
 // Top API (Last 10min UUIDs)
 func Top(c echo.Context) error {
-	println(c.Request().URL.RawQuery)
 	ids := kvs.KEYS("KISHOW:*")
 	for i := 0; i < len(ids); i++ {
 		ids[i] = strings.TrimPrefix(ids[i], "KISHOW:")
 	}
+	println(c.Param("s"))
 	if c.Param("s") == "p" {
 		return c.JSONPretty(200, TopJSON{UUID: ids}, "  ")
 	}

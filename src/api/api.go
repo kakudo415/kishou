@@ -20,6 +20,7 @@ func Top(c echo.Context) error {
 		ids[i] = strings.TrimPrefix(ids[i], "KISHOW:")
 	}
 	if c.Param("s") == "p" {
+		println("s=p")
 		return c.JSONPretty(200, TopJSON{UUID: ids}, "  ")
 	}
 	return c.JSON(200, TopJSON{UUID: ids})

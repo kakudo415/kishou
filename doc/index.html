@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <!-- Resource -->
+  <link rel="stylesheet" href="https://kakudo415.github.io/null.css/2.3.css">
+  <link rel="stylesheet" href="./style.css">
+  <link href="https://fonts.googleapis.com/css?family=Quicksand:500" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Resource END -->
+  <title>Kishow API Document</title>
+  <link rel="icon" href="https://kakudo.app/icon8r64px.png" type="image/png">
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Kishow API Document</h1>
+    </div>
+  </header>
+  <main>
+    <div>
+      <!-- About -->
+      <div>
+        <h2>About</h2>
+      </div>
+      <div>
+        <p>Kishowは気象庁がリアルタイムに配信する気象情報のXMLデータをPubSubHubbub(WebSub)を使って受信し、JSONに変換して再配布するAPIです。</p>
+        <p>情報はその場での使用を想定しているので、データが保持されるのは長くても1日程度(基本は10分)です。(データベース用途ではお使いいただけません)</p>
+      </div>
+      <!-- Usage -->
+      <div>
+        <h2>Usage</h2>
+      </div>
+      <div>
+        <p>最新の情報を得るには <a href="https://kakudo.app/kishow/">https://kakudo.app/kishow/</a> をポーリングして新たなデータのUUIDが登録されていないかチェックしてください。</p>
+        <img src="./image/uuids.jpg" alt="UUIDs">
+        <p>最近(10分程度)配信された情報のUUIDが配列に入っているので、新たな情報があればAPIのURLの後に繋げて情報を取得します。</p>
+        <p>例えば、UUIDが<code>515c0f22-85dd-326e-b188-9d2ae1f13910</code>の情報を取得したい場合、<code>https://kakudo.app/kishow/515c0f22-85dd-326e-b188-9d2ae1f13910</code>から下のようなJSON化された情報を得ることができます。(例は一部です。実際の情報はもっと長い可能性もあります。)</p>
+        <img src="./image/info.jpg" alt="Information example">
+        <p>このAPIでは便宜上、下のXMLデータにある属性値を省いています。ご了承ください。</p>
+      </div>
+      <div>
+        <h2>Option</h2>
+      </div>
+      <div>
+        <p>基本はプログラムからのポーリングを想定しているため、JSONは最小化されたものが配布されていますが、デバッグ目的など人が読む場合はHTTPヘッダーで整形オプションを設定してください。</p>
+        <p><code>X-JSON-STYLE: PRETTY</code>とHTTP Headerに追加することで整形されたJSONを配布します。</p>
+      </div>
+      <div>
+        <h2>Finally</h2>
+      </div>
+      <div>
+        <p>このAPIは私個人の目的で作ったものなので、正常な動作は保証されていませんし、予告なくサービスを終了するかもしれません。(なるべく頑張ります！)</p>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

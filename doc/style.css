@@ -1,0 +1,79 @@
+html {
+  background: #EEE;
+}
+/* header */
+header {
+  background: #FFF;
+}
+header > div {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  font-family: "Quicksand", sans-serif;
+}
+header h1 {
+  font-size: 1.375rem;
+  color: #000A;
+}
+/* main */
+main > div {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+main > div h2 {
+  font-family: "Quicksand", sans-serif;
+  font-size: 1.25rem;
+  color: #000A;
+}
+main > div > div:nth-of-type(2n + 1) {
+  margin-bottom: 1rem;
+}
+main > div > div:nth-child(2n) {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: #FFF;
+}
+main > div > div:nth-child(2n):last-child {
+  margin-bottom: 0;
+}
+main > div > div:nth-child(2n) > p {
+  margin-bottom: 1rem;
+  line-height: 1.375;
+}
+main > div > div:nth-child(2n) > *:last-child {
+  margin-bottom: 0;
+}
+main > div > div:nth-child(2n) a {
+  color: #0077CC;
+  text-decoration: underline;
+}
+main > div > div:nth-child(2n) a:hover {
+  text-decoration: none;
+}
+main > div > div:nth-child(2n) img {
+  height: auto;
+  width: 100%;
+  max-width: 720px;
+  margin-bottom: 1rem;
+  border: 1px solid #0002;
+}
+main > div > div:nth-child(2n) code {
+  display: inline-block;
+  height: 100%;
+  margin: 0 0.25rem;
+  padding: 0 0.25rem;
+  background: #EEE;
+  border-radius: 0.25rem;
+}
+
+@media (max-width: 960px) {
+  html {
+    font-size: 14px;
+  }
+  main > div {
+    padding: 1rem 0.5rem;
+  }
+}

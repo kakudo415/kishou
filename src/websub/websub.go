@@ -11,9 +11,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
+
 	"github.com/labstack/echo"
 	"github.com/mmcdole/gofeed"
 
+	"../db"
 	"../kvs"
 )
 
@@ -76,6 +79,17 @@ func Sub(c echo.Context) error {
 				kvs.SET(id, string(d))
 				kvs.EXPIRE(id, (10 * time.Minute))
 			}
+			// Save to MySQL
+			id, err := uuid.Parse(strings.TrimPrefix(item.GUID, "urn:uuid:"))
+			jm, err := json.Marshal(&src)
+			if err != nil {
+				continue
+			}
+			jp, err := json.MarshalIndent(&src, "", "  ")
+			if err != nil {
+				continue
+			}
+			db.Add(id, time.Now(), string(jm), string(jp), b.String())
 		}
 		return c.String(200, "THANK YOU")
 	}

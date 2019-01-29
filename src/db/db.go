@@ -15,9 +15,9 @@ import (
 type Data struct {
 	UUID   uuid.UUID `gorm:"primary_key"`
 	Time   time.Time
-	JSONM  string `gorm:"type:text"`
-	JSONP  string `gorm:"type:text"`
-	RawXML string `gorm:"type:text"`
+	JSONM  string `gorm:"type:longtext"`
+	JSONP  string `gorm:"type:longtext"`
+	RawXML string `gorm:"type:longtext"`
 }
 
 var db *gorm.DB

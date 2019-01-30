@@ -27,8 +27,8 @@ func Top(c echo.Context) error {
 	return c.JSON(200, TopJSON{UUID: ids})
 }
 
-// JSON API
-func JSON(c echo.Context) error {
+// JSONMinify API
+func JSONMinify(c echo.Context) error {
 	c.Response().Header().Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	u, e := uuid.Parse(c.Param("uuid"))
 	if e != nil {
@@ -38,8 +38,33 @@ func JSON(c echo.Context) error {
 	if d.UUID == uuid.Nil {
 		return c.NoContent(404)
 	}
-	if c.QueryParam("s") == "p" {
-		return c.String(200, d.JSONP)
-	}
 	return c.String(200, d.JSONM)
+}
+
+// JSONPretty API
+func JSONPretty(c echo.Context) error {
+	c.Response().Header().Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	u, e := uuid.Parse(c.Param("uuid"))
+	if e != nil {
+		return c.NoContent(404)
+	}
+	d := db.Get(u)
+	if d.UUID == uuid.Nil {
+		return c.NoContent(404)
+	}
+	return c.String(200, d.JSONP)
+}
+
+// XML API
+func XML(c echo.Context) error {
+	c.Response().Header().Set(echo.HeaderContentType, echo.MIMEApplicationXML)
+	u, e := uuid.Parse(c.Param("uuid"))
+	if e != nil {
+		return c.NoContent(404)
+	}
+	d := db.Get(u)
+	if d.UUID == uuid.Nil {
+		return c.NoContent(404)
+	}
+	return c.String(200, d.RawXML)
 }

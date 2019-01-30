@@ -27,8 +27,8 @@ func Top(c echo.Context) error {
 	return c.JSON(200, TopJSON{UUID: ids})
 }
 
-// JSONMinify API
-func JSONMinify(c echo.Context) error {
+// JSON API
+func JSON(c echo.Context) error {
 	c.Response().Header().Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	u, e := uuid.Parse(c.Param("uuid"))
 	if e != nil {

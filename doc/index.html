@@ -35,17 +35,9 @@
         <p>最新の情報を得るには <a href="https://kakudo.app/kishow/">https://kakudo.app/kishow/</a> をポーリングして新たなデータのUUIDが登録されていないかチェックしてください。</p>
         <img src="./image/uuids.jpg" alt="UUIDs">
         <p>最近(10分程度)配信された情報のUUIDが配列に入っているので、新たな情報があればAPIのURLの後に繋げて情報を取得します。</p>
-        <p>例えば、UUIDが<code>515c0f22-85dd-326e-b188-9d2ae1f13910</code>の情報を取得したい場合、<code>https://kakudo.app/kishow/515c0f22-85dd-326e-b188-9d2ae1f13910</code>から下のようなJSON化された情報を得ることができます。(例は一部です。実際の情報はもっと長い可能性もあります。)</p>
+        <p>例えば、UUIDが<code>515c0f22-85dd-326e-b188-9d2ae1f13910</code>の情報をJSONで取得したい場合、<code>https://kakudo.app/kishow/json/515c0f22-85dd-326e-b188-9d2ae1f13910</code>から下のようなJSON化された情報を得ることができます。(例は一部です。実際の情報はもっと長い可能性もあります。)</p>
         <img src="./image/info.jpg" alt="Information example">
         <p>このAPIでは便宜上、元のXMLデータにある属性値を省いています。ご了承ください。</p>
-      </div>
-      <div>
-        <h2>Option</h2>
-      </div>
-      <div>
-        <p>基本はプログラムからのポーリングを想定しているため、JSONは最小化されたものが配布されていますが、デバッグ目的など人が読む場合はURL Queryで整形オプションを設定してください。</p>
-        <p>URLに<code>s=p</code>(Style = Pretty の意)を追加することで整形されたJSONになります。</p>
-        <img src="./image/pretty.jpg" alt="Pretty information example">
       </div>
       <div>
         <h2>Finally</h2>

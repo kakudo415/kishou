@@ -3,8 +3,10 @@ package api
 import (
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/labstack/echo"
 
+	"../db"
 	"../kvs"
 )
 
@@ -27,12 +29,17 @@ func Top(c echo.Context) error {
 
 // JSON API
 func JSON(c echo.Context) error {
-	var info string
-	c.Response().Header().Set(echo.HeaderContentType, echo.MIMEApplicationJSONCharsetUTF8)
-	if c.QueryParam("s") == "p" {
-		info = kvs.GET("KISHOW-PRETTY:" + c.Param("uuid"))
-	} else {
-		info = kvs.GET("KISHOW:" + c.Param("uuid"))
+	c.Response().Header().Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	u, e := uuid.Parse(c.Param("uuid"))
+	if e != nil {
+		return c.NoContent(404)
 	}
-	return c.String(200, info)
+	d := db.Get(u)
+	if d.UUID == uuid.Nil {
+		return c.NoContent(404)
+	}
+	if c.QueryParam("s") == "p" {
+		return c.String(200, d.JSONP)
+	}
+	return c.String(200, d.JSONM)
 }

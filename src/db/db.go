@@ -33,6 +33,13 @@ func Add(u uuid.UUID, t time.Time, jm string, jp string, x string) {
 	})
 }
 
+// Get info from MySQL
+func Get(u uuid.UUID) Data {
+	d := new(Data)
+	db.Where("uuid = ?", u).First(d)
+	return *d
+}
+
 func init() {
 	var err error
 	db, err = gorm.Open("mysql", os.Getenv("KISHOW_DB"))

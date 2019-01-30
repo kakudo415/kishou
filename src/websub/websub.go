@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-
 	"github.com/labstack/echo"
 	"github.com/mmcdole/gofeed"
 
@@ -57,30 +56,11 @@ func Sub(c echo.Context) error {
 				fmt.Fprintf(os.Stderr, "[ERROR] %s\n", err.Error())
 				continue
 			}
-			// Save to Redis
-			{
-				d, err := json.Marshal(&src)
-				if err != nil {
-					fmt.Fprintf(os.Stderr, "[ERROR] %s\n", err.Error())
-					continue
-				}
-				id := "KISHOW:" + strings.TrimPrefix(item.GUID, "urn:uuid:")
-				kvs.SET(id, string(d))
-				kvs.EXPIRE(id, (10 * time.Minute))
-			}
-			// Save to Redis (Pretty)
-			{
-				d, err := json.MarshalIndent(&src, "", "  ")
-				if err != nil {
-					fmt.Fprintf(os.Stderr, "[ERROR] %s\n", err.Error())
-					continue
-				}
-				id := "KISHOW-PRETTY:" + strings.TrimPrefix(item.GUID, "urn:uuid:")
-				kvs.SET(id, string(d))
-				kvs.EXPIRE(id, (10 * time.Minute))
-			}
 			// Save to MySQL
 			id, err := uuid.Parse(strings.TrimPrefix(item.GUID, "urn:uuid:"))
+			if err != nil {
+				continue
+			}
 			jm, err := json.Marshal(&src)
 			if err != nil {
 				continue
@@ -90,6 +70,10 @@ func Sub(c echo.Context) error {
 				continue
 			}
 			db.Add(id, time.Now(), string(jm), string(jp), b.String())
+			// Save to Redis (Latest keys)
+			k := "KISHOW:" + id.String()
+			kvs.SET(k, "RECEIVED")
+			kvs.EXPIRE(k, (time.Minute * 10))
 		}
 		return c.String(200, "THANK YOU")
 	}

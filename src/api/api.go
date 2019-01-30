@@ -38,21 +38,7 @@ func JSONMinify(c echo.Context) error {
 	if d.UUID == uuid.Nil {
 		return c.NoContent(404)
 	}
-	return c.String(200, d.JSONM)
-}
-
-// JSONPretty API
-func JSONPretty(c echo.Context) error {
-	c.Response().Header().Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	u, e := uuid.Parse(c.Param("uuid"))
-	if e != nil {
-		return c.NoContent(404)
-	}
-	d := db.Get(u)
-	if d.UUID == uuid.Nil {
-		return c.NoContent(404)
-	}
-	return c.String(200, d.JSONP)
+	return c.String(200, d.JSON)
 }
 
 // XML API
@@ -66,5 +52,5 @@ func XML(c echo.Context) error {
 	if d.UUID == uuid.Nil {
 		return c.NoContent(404)
 	}
-	return c.String(200, d.RawXML)
+	return c.String(200, d.XML)
 }

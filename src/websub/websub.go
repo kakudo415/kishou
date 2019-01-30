@@ -61,15 +61,11 @@ func Sub(c echo.Context) error {
 			if err != nil {
 				continue
 			}
-			jm, err := json.Marshal(&src)
+			j, err := json.Marshal(&src)
 			if err != nil {
 				continue
 			}
-			jp, err := json.MarshalIndent(&src, "", "  ")
-			if err != nil {
-				continue
-			}
-			db.Add(id, time.Now(), string(jm), string(jp), b.String())
+			db.Add(id, time.Now(), string(j), b.String())
 			// Save to Redis (Latest keys)
 			k := "KISHOW:" + id.String()
 			kvs.SET(k, "RECEIVED")

@@ -1,4 +1,4 @@
-main:
+main: package
 	go build -o bin/kishow src/main.go
 package:
 	go get -u github.com/labstack/echo

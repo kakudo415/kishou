@@ -16,12 +16,9 @@ type TopJSON struct {
 
 // Top API (Last 10min UUIDs)
 func Top(c echo.Context) error {
-	ids := kvs.KEYS("KISHOW:*:JSON")
+	ids := kvs.KEYS("KISHOW:JSON:*")
 	for i := 0; i < len(ids); i++ {
-		id := ids[i]
-		id = strings.TrimPrefix(id, "KISHOW:")
-		id = strings.TrimSuffix(id, ":JSON")
-		ids[i] = id
+		ids[i] = strings.TrimPrefix(ids[i], "KISHOW:JSON:")
 	}
 	return c.JSON(200, TopJSON{UUID: ids})
 }

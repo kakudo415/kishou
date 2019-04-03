@@ -64,11 +64,12 @@ func Sub(c echo.Context) error {
 				continue
 			}
 			// Save to Redis
-			k := "KISHOW:" + id.String()
-			kvs.SET((k + ":JSON"), string(j))
-			kvs.SET((k + ":XML"), b.String())
-			kvs.EXPIRE((k + ":JSON"), time.Hour)
-			kvs.EXPIRE((k + ":XML"), time.Hour)
+			kj := "KISHOW:JSON:" + id.String()
+			kx := "KISHOW:XML:" + id.String()
+			kvs.SET(kj, string(j))
+			kvs.SET(kx, b.String())
+			kvs.EXPIRE(kj, time.Hour)
+			kvs.EXPIRE(kx, time.Hour)
 		}
 		return c.String(200, "THANK YOU")
 	}

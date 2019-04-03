@@ -67,8 +67,8 @@ func Sub(c echo.Context) error {
 			k := "KISHOW:" + id.String()
 			kvs.SET((k + ":JSON"), string(j))
 			kvs.SET((k + ":XML"), b.String())
-			kvs.EXPIRE((k + ":JSON"), (time.Minute * 10))
-			kvs.EXPIRE((k + ":XML"), (time.Minute * 10))
+			kvs.EXPIRE((k + ":JSON"), (time.Hour * 72))
+			kvs.EXPIRE((k + ":XML"), (time.Hour * 72))
 		}
 		return c.String(200, "THANK YOU")
 	}

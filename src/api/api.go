@@ -30,7 +30,7 @@ func JSON(c echo.Context) error {
 	if e != nil {
 		return c.NoContent(404)
 	}
-	d := kvs.GET("KISHOW:" + u.String() + ":JSON")
+	d := kvs.GET("KISHOW:JSON:" + u.String())
 	if len(d) == 0 {
 		return c.NoContent(404)
 	}
@@ -44,7 +44,7 @@ func XML(c echo.Context) error {
 	if e != nil {
 		return c.NoContent(404)
 	}
-	d := kvs.GET("KISHOW:" + u.String() + ":XML")
+	d := kvs.GET("KISHOW:XML:" + u.String())
 	if len(d) == 0 {
 		return c.NoContent(404)
 	}

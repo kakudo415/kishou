@@ -15,7 +15,6 @@ import (
 	"github.com/labstack/echo"
 	"github.com/mmcdole/gofeed"
 
-	"../db"
 	"../kvs"
 )
 
@@ -56,7 +55,6 @@ func Sub(c echo.Context) error {
 				fmt.Fprintf(os.Stderr, "[ERROR] %s\n", err.Error())
 				continue
 			}
-			// Save to MySQL
 			id, err := uuid.Parse(strings.TrimPrefix(item.GUID, "urn:uuid:"))
 			if err != nil {
 				continue
@@ -65,11 +63,12 @@ func Sub(c echo.Context) error {
 			if err != nil {
 				continue
 			}
-			db.Add(id, time.Now(), string(j), b.String())
-			// Save to Redis (Latest keys)
+			// Save to Redis
 			k := "KISHOW:" + id.String()
-			kvs.SET(k, "RECEIVED")
-			kvs.EXPIRE(k, (time.Minute * 10))
+			kvs.SET((k + ":JSON"), string(j))
+			kvs.SET((k + ":XML"), b.String())
+			kvs.EXPIRE((k + ":JSON"), (time.Minute * 10))
+			kvs.EXPIRE((k + ":XML"), (time.Minute * 10))
 		}
 		return c.String(200, "THANK YOU")
 	}

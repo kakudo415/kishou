@@ -6,7 +6,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/labstack/echo"
 
-	"../db"
 	"../kvs"
 )
 
@@ -21,9 +20,6 @@ func Top(c echo.Context) error {
 	for i := 0; i < len(ids); i++ {
 		ids[i] = strings.TrimPrefix(ids[i], "KISHOW:")
 	}
-	if c.QueryParam("s") == "p" {
-		return c.JSONPretty(200, TopJSON{UUID: ids}, "  ")
-	}
 	return c.JSON(200, TopJSON{UUID: ids})
 }
 
@@ -34,11 +30,11 @@ func JSON(c echo.Context) error {
 	if e != nil {
 		return c.NoContent(404)
 	}
-	d := db.Get(u)
-	if d.UUID == uuid.Nil {
+	d := kvs.GET("KISHOW:" + u.String() + ":JSON")
+	if len(d) == 0 {
 		return c.NoContent(404)
 	}
-	return c.String(200, d.JSON)
+	return c.String(200, d)
 }
 
 // XML API
@@ -48,9 +44,9 @@ func XML(c echo.Context) error {
 	if e != nil {
 		return c.NoContent(404)
 	}
-	d := db.Get(u)
-	if d.UUID == uuid.Nil {
+	d := kvs.GET("KISHOW:" + u.String() + ":XML")
+	if len(d) == 0 {
 		return c.NoContent(404)
 	}
-	return c.String(200, d.XML)
+	return c.String(200, d)
 }

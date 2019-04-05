@@ -68,8 +68,8 @@ func Sub(c echo.Context) error {
 			kx := "KISHOW:XML:" + id.String()
 			kvs.SET(kj, string(j))
 			kvs.SET(kx, b.String())
-			kvs.EXPIRE(kj, time.Hour)
-			kvs.EXPIRE(kx, time.Hour)
+			kvs.EXPIRE(kj, (time.Minute * 10))
+			kvs.EXPIRE(kx, (time.Minute * 10))
 		}
 		return c.String(200, "THANK YOU")
 	}

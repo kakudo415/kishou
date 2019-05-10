@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    a {
+      font-family: monospace;
+      font-size: 1.25rem;
+      line-height: 2;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+  <title>Kishow Links</title>
+</head>
+<body>
+  <div id="area"></div>
+  <script>
+    const areaHTML = document.getElementById("area");
+    fetch("https://kakudo.app/kishow/", {mode: "cors"})
+      .then((res) => {
+        return res.json();
+      }).then((json) => {
+        json.UUID.forEach((v) => {
+          const link = document.createElement("a");
+          const br = document.createElement("br");
+          link.textContent = `${v}`;
+          link.href = `https://kakudo.app/kishow/json/${v}`;
+          link.append(br);
+          areaHTML.append(link);
+        });
+      }).catch((err) => {
+        console.error(err);
+      });
+  </script>
+</body>
+</html>

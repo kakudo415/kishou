@@ -25,7 +25,7 @@ func Top(c echo.Context) error {
 
 // JSON API
 func JSON(c echo.Context) error {
-	c.Response().Header().Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	c.Response().Header().Set(echo.HeaderContentType, echo.MIMEApplicationJSONCharsetUTF8)
 	u, e := uuid.Parse(c.Param("uuid"))
 	if e != nil {
 		return c.NoContent(404)
@@ -39,7 +39,7 @@ func JSON(c echo.Context) error {
 
 // XML API
 func XML(c echo.Context) error {
-	c.Response().Header().Set(echo.HeaderContentType, echo.MIMEApplicationXML)
+	c.Response().Header().Set(echo.HeaderContentType, echo.MIMEApplicationXMLCharsetUTF8)
 	u, e := uuid.Parse(c.Param("uuid"))
 	if e != nil {
 		return c.NoContent(404)
